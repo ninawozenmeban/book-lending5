@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>图书借还登记</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    #status {
+      margin-top: 15px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>图书借还登记</h2>
+
+  <label for="barcode">图书条码：</label>
+  <input type="text" id="barcode" placeholder="请扫描或输入图书条码">
+
+  <label for="title">图书名称：</label>
+  <input type="text" id="title" placeholder="自动填入图书名" readonly>
+
+  <label for="reader">借阅人姓名：</label>
+  <input type="text" id="reader" placeholder="请输入您的姓名">
+
+  <label for="id">证件号 / 学号：</label>
+  <input type="text" id="id" placeholder="用于查重">
+
+  <button onclick="goToForm()">登记借书</button>
+
+  <div id="status"></div>
+
+  <script>
+    let booksData = {};
+
+    // 加载 GitHub 上的 books.json 文件
+    fetch("https://raw.githubusercontent.com/你的用户名/你的仓库名/main/books.json")
+      .then(response => response.json())
+      .then(data => {
+        booksData = data;
+      });
+
+    // 自动填写图书名称
+    document.getElementById("barcode").addEventListener("input", function () {
+      const code = this.value.trim();
+      const match = booksData.find(b => b.barcode === code || b.isbn === code);
+      if (match) {
+        document.getElementById("title").value = match.title;
+      } else {
+        document.getElementById("title").value = "未找到对应图书";
+      }
+    });
+
+    function goToForm() {
+      const title = encodeURIComponent(document.getElementById("title").value);
+      const reader = encodeURIComponent(document.getElementById("reader").value);
+      const id = encodeURIComponent(document.getElementById("id").value);
+
+      if (!reader || !id) {
+        document.getElementById("status").innerText = "请填写借阅人姓名和证件号";
+        return;
+      }
+
+      // 腾讯文档收集表地址（请替换为你自己的）
+      const formBase = "https://docs.qq.com/form/page/DXXXXXXXXXXXXXXXXXXX";
+      
+      // 跳转（目前腾讯文档不支持 URL 预填参数，所以只能跳转）
+      window.open(formBase, "_blank");
+
+      document.getElementById("status").innerText = "已跳转到登记页面，请在新窗口填写表单。";
+    }
+  </script>
+
+</body>
+</html>
